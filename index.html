@@ -4,165 +4,125 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Enterprise Capital Optimization Sandbox</title>
-    <!-- Tailwind CSS for Boardroom Aesthetic -->
-    <script src="https://jsdelivr.net"></script>
-    <!-- Chart.js for High-Fidelity Data Visualization -->
-    <script src="https://jsdelivr.net"></script>
     <style>
+        :root {
+            --bg-main: #090d16; --bg-card: #111827; --border-color: #1f2937;
+            --text-muted: #9ca3af; --accent-cyan: #06b6d4; --accent-amber: #f59e0b;
+        }
         body {
-            background-color: #0b0f19;
-            color: #f1f5f9;
-            font-family: ui-sans-serif, system-ui, sans-serif;
+            background-color: var(--bg-main); color: #f3f4f6;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            margin: 0; padding: 40px 20px;
         }
+        .container { max-width: 1100px; margin: 0 auto; }
+        .header-block {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px; margin-bottom: 35px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        h1 { font-size: 24px; font-weight: 900; tracking-spacing: 1px; text-transform: uppercase; margin: 0; }
+        .badge {
+            background-color: #450a0a; color: #f87171; border: 1px solid #7f1d1d;
+            padding: 6px 16px; font-size: 11px; font-family: monospace; text-transform: uppercase; border-radius: 50px;
+        }
+        .subtitle { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+        .workspace { display: grid; grid-template-columns: 1fr; gap: 30px; }
+        @media (min-width: 768px) { .workspace { grid-template-columns: 1fr 2fr; } }
+        .panel { background-color: var(--bg-card); border: 1px solid var(--border-color); padding: 25px; border-radius: 12px; }
+        .panel-title { font-size: 13px; font-weight: bold; color: #e5e7eb; text-transform: uppercase; margin-bottom: 25px; }
+        .slider-group { margin-bottom: 30px; }
+        .slider-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .slider-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
+        .slider-value { font-family: monospace; font-weight: bold; font-size: 15px; }
+        .cyan-text { color: var(--accent-cyan); }
+        .amber-text { color: var(--accent-amber); }
+        input[type=range] { width: 100%; background: #1f2937; height: 6px; border-radius: 5px; outline: none; }
+        .outputs-grid { display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 25px; }
+        @media (min-width: 480px) { .outputs-grid { grid-template-columns: 1fr 1fr; } }
+        .kpi-card { background: rgba(17, 24, 39, 0.4); border: 1px solid var(--border-color); padding: 20px; border-radius: 12px; position: relative; }
+        .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; }
+        .kpi-wacc::before { background-color: var(--accent-amber); }
+        .kpi-ev::before { background-color: var(--accent-cyan); }
+        .kpi-label { font-size: 10px; font-weight: bold; color: var(--text-muted); text-transform: uppercase; }
+        .kpi-display { font-family: monospace; font-size: 32px; font-weight: 900; margin-top: 5px; }
+        .chart-container { background-color: rgba(17, 24, 39, 0.6); border: 1px solid var(--border-color); padding: 20px; border-radius: 12px; height: 280px; }
+        .note { font-size: 11px; color: #4b5563; margin-top: 15px; font-style: italic; }
     </style>
+    <script src="https://jsdelivr.net"></script>
 </head>
-<body class="p-4 md:p-8 max-w-5xl mx-auto">
-
-    <!-- Header Block -->
-    <div class="border-b border-slate-800 pb-4 mb-8">
-        <div class="flex justify-between items-center">
-            <h1 class="text-xl md:text-2xl font-black tracking-wider text-white uppercase">Bandit's Secret: Valuation Destruction Matrix</h1>
-            <span class="text-xs bg-red-950 text-red-400 border border-red-900 px-3 py-1 font-mono uppercase tracking-widest rounded-full animate-pulse">Live Simulator</span>
-        </div>
-        <p class="text-xs text-slate-400 mt-1">Quantitative Risk Architecture • Framework Author: Frank Fabozzi & Lean Six Sigma MBB</p>
-    </div>
-
-    <!-- Main Workspace Matrix -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        <!-- Interactive Controls (Left Panel) -->
-        <div class="lg:col-span-1 bg-slate-900/60 border border-slate-800 p-6 rounded-xl shadow-2xl backdrop-blur-sm flex flex-col gap-6">
-            <h2 class="text-sm font-bold text-slate-300 uppercase tracking-widest border-b border-slate-800 pb-2">Operational Inputs</h2>
-            
-            <!-- Input 1: Free Cash Flow (FCFF) -->
+<body>
+    <div class="container">
+        <div class="header-block">
             <div>
-                <div class="flex justify-between mb-2">
-                    <label class="text-xs font-semibold text-slate-400 uppercase">Expected FCFF</label>
-                    <span id="fcff-val" class="text-sm font-mono text-cyan-400 font-bold">€80,000,000</span>
-                </div>
-                <input type="range" id="fcff-slider" min="50000000" max="110000000" step="1000000" value="80000000" 
-                       class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-500">
+                <h1>Bandit's Secret: Valuation Destruction Matrix</h1>
+                <div class="subtitle">Quantitative Risk Architecture • Fabozzi & Lean Six Sigma MBB</div>
             </div>
-
-            <!-- Input 2: Asset Beta Variance Shock -->
-            <div>
-                <div class="flex justify-between mb-2">
-                    <label class="text-xs font-semibold text-slate-400 uppercase">Asset Beta (Variance)</label>
-                    <span id="beta-val" class="text-sm font-mono text-amber-400 font-bold">1.10</span>
-                </div>
-                <input type="range" id="beta-slider" min="0.80" max="1.80" step="0.01" value="1.10" 
-                       class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500">
-            </div>
-
-            <!-- Financial Diagnostic Readout -->
-            <div class="mt-4 p-4 bg-slate-950 border border-slate-800/80 rounded-lg text-[11px] text-slate-500 space-y-2">
-                <p>⚡ <span class="text-slate-400 font-semibold">Fabozzi Mechanics:</span> Adjusting the asset covariance variable triggers a real-time CAPM cost of equity transformation, shifting the discount curve.</p>
-            </div>
+            <div class="badge">Live App Engine</div>
         </div>
-
-        <!-- Real-Time Charts & KPI Displays (Right Panel) -->
-        <div class="lg:col-span-2 flex flex-col gap-6">
-            
-            <!-- Strategic Outputs Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- WACC Panel -->
-                <div class="bg-slate-900/40 border border-slate-800/80 p-5 rounded-xl relative overflow-hidden">
-                    <div class="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Weighted Average Cost of Capital (WACC)</span>
-                    <div id="wacc-display" class="text-3xl font-mono font-black text-amber-400 mt-1">6.64%</div>
+        <div class="workspace">
+            <div class="panel">
+                <div class="panel-title">Operational Inputs</div>
+                <div class="slider-group">
+                    <div class="slider-header"><span class="slider-label">Expected FCFF</span><span id="fcff-val" class="slider-value cyan-text">€80,000,000</span></div>
+                    <input type="range" id="fcff-slider" min="50000000" max="110000000" step="1000000" value="80000000">
                 </div>
-
-                <!-- Enterprise Value Panel -->
-                <div class="bg-slate-900/40 border border-slate-800/80 p-5 rounded-xl relative overflow-hidden">
-                    <div class="absolute top-0 left-0 w-1 h-full bg-cyan-500"></div>
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Calculated Enterprise Value</span>
-                    <div id="ev-display" class="text-3xl font-mono font-black text-cyan-400 mt-1">€1,980,676,328</div>
+                <div class="slider-group">
+                    <div class="slider-header"><span class="slider-label">Asset Beta (Variance)</span><span id="beta-val" class="slider-value amber-text">1.10</span></div>
+                    <input type="range" id="beta-slider" min="0.80" max="1.80" step="0.01" value="1.10">
                 </div>
+                <div class="note">⚡ <strong>Fabozzi Mechanics:</strong> Shifting the internal covariance profile drives real-time adjustments through the curves.</div>
             </div>
-
-            <!-- Dynamic Valuation Curve Rendering Area -->
-            <div class="bg-slate-900/60 border border-slate-800 p-4 rounded-xl shadow-2xl h-64 flex items-center justify-center relative">
-                <canvas id="valuationChart"></canvas>
+            <div>
+                <div class="outputs-grid">
+                    <div class="kpi-card kpi-wacc"><div class="kpi-label">Weighted Average Cost of Capital (WACC)</div><div id="wacc-display" class="kpi-display amber-text">6.64%</div></div>
+                    <div class="kpi-card kpi-ev"><div class="kpi-label">Calculated Enterprise Value</div><div id="ev-display" class="kpi-display cyan-text">€1,980,676,328</div></div>
+                </div>
+                <div class="chart-container"><canvas id="valuationChart" style="width:100%; height:100%;"></canvas></div>
             </div>
-
         </div>
     </div>
-
-    <!-- Analytics Engine Script Execution -->
     <script>
-        const fcffSlider = document.getElementById('fcff-slider');
-        const betaSlider = document.getElementById('beta-slider');
-        const fcffVal = document.getElementById('fcff-val');
-        const betaVal = document.getElementById('beta-val');
-        const waccDisplay = document.getElementById('wacc-display');
-        const evDisplay = document.getElementById('ev-display');
+        window.addEventListener('DOMContentLoaded', () => {
+            const fcffSlider = document.getElementById('fcff-slider');
+            const betaSlider = document.getElementById('beta-slider');
+            const fcffVal = document.getElementById('fcff-val');
+            const betaVal = document.getElementById('beta-val');
+            const waccDisplay = document.getElementById('wacc-display');
+            const evDisplay = document.getElementById('ev-display');
 
-        // Macroeconomic Constraints
-        const rf = 0.03; const mrp = 0.05; const wd = 0.40; const we = 0.60; const rd = 0.055; const taxRate = 0.30; const g = 0.025;
+            const rf = 0.03; const mrp = 0.05; const wd = 0.40; const we = 0.60; const rd = 0.055; const taxRate = 0.30; const g = 0.025;
+            function formatCurrency(num) { return '€' + num.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
 
-        function formatCurrency(num) {
-            return '€' + num.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-        }
-
-        // Initialize Chart.js Curve
-        const ctx = document.getElementById('valuationChart').getContext('2d');
-        let valuationChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['Stable Ops', 'Minor Deviation', 'Variance Shock', 'Critical Failure'],
-                datasets: [{
-                    label: 'Enterprise Value Horizon curve',
-                    data: [2200000000, 1980676328, 1620726496, 1200000000],
-                    borderColor: '#06b6d4',
-                    borderWidth: 2,
-                    backgroundColor: 'rgba(6, 182, 212, 0.05)',
-                    fill: true,
-                    tension: 0.4,
-                    pointBackgroundColor: '#f59e0b'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    x: { grid: { color: '#1e293b' }, ticks: { color: '#64748b', font: { size: 10 } } },
-                    y: { grid: { color: '#1e293b' }, ticks: { color: '#64748b', font: { size: 10 } } }
-                }
-            }
-        });
-
-        function calculateMatrix() {
-            const currentFcff = parseFloat(fcffSlider.value);
-            const currentBeta = parseFloat(betaSlider.value);
-
-            fcffVal.innerText = formatCurrency(currentFcff);
-            betaVal.innerText = currentBeta.toFixed(2);
-
-            const re = rf + (currentBeta * mrp);
-            const wacc = (we * re) + (wd * (rd * (1 - taxRate)));
-            let ev = wacc > g ? (currentFcff * (1 + g)) / (wacc - g) : 0;
-
-            waccDisplay.innerText = (wacc * 100).toFixed(2) + '%';
-            evDisplay.innerText = ev > 0 ? formatCurrency(ev) : 'Incalculable';
-
-            // Real-Time Dynamic Simulation Array for Curve Updates
-            const simulatedEVs = [
-                ev * 1.15, 
-                ev,         
-                ev * 0.82,  
-                ev * 0.60   
-            ];
+            let valuationChart;
+            const ctx = document.getElementById('valuationChart').getContext('2d');
             
-            valuationChart.data.datasets[0].data = simulatedEVs;
-            valuationChart.update();
-        }
+            function buildChart(currentEV) {
+                if (valuationChart) { valuationChart.destroy(); }
+                valuationChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Target State', 'Minor Slip', 'Variance Volatility', 'Structural Collapse'],
+                        datasets: [{
+                            data: [currentEV * 1.15, currentEV, currentEV * 0.78, currentEV * 0.45],
+                            borderColor: '#06b6d4', borderWidth: 3, backgroundColor: 'rgba(6, 182, 212, 0.03)', fill: true, tension: 0.3, pointBackgroundColor: '#f59e0b', pointRadius: 4
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { color: '#1f2937' }, ticks: { color: '#9ca3af' } }, y: { grid: { color: '#1f2937' }, ticks: { color: '#9ca3af' } } } }
+                });
+            }
 
-        fcffSlider.addEventListener('input', calculateMatrix);
-        betaSlider.addEventListener('input', calculateMatrix);
-        
-        // Initial Run
-        calculateMatrix();
+            function updateAnalytics() {
+                const fcf = parseFloat(fcffSlider.value); const beta = parseFloat(betaSlider.value);
+                fcffVal.innerText = formatCurrency(fcf); betaVal.innerText = beta.toFixed(2);
+                const re = rf + (beta * mrp); const wacc = (we * re) + (wd * (rd * (1 - taxRate))); const ev = wacc > g ? (fcf * (1 + g)) / (wacc - g) : 0;
+                waccDisplay.innerText = (wacc * 100).toFixed(2) + '%'; evDisplay.innerText = ev > 0 ? formatCurrency(ev) : 'Incalculable';
+                if (typeof Chart !== 'undefined') { buildChart(ev); }
+            }
+
+            fcffSlider.addEventListener('input', updateAnalytics);
+            betaSlider.addEventListener('input', updateAnalytics);
+            setTimeout(updateAnalytics, 500);
+        });
     </script>
 </body>
 </html>
