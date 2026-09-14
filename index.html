@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Capital Optimization Sandbox</title>
+    <!-- Tailwind CSS for Boardroom Aesthetic -->
+    <script src="https://jsdelivr.net"></script>
+    <!-- Chart.js for High-Fidelity Data Visualization -->
+    <script src="https://jsdelivr.net"></script>
+    <style>
+        body {
+            background-color: #0b0f19;
+            color: #f1f5f9;
+            font-family: ui-sans-serif, system-ui, sans-serif;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 max-w-5xl mx-auto">
+
+    <!-- Header Block -->
+    <div class="border-b border-slate-800 pb-4 mb-8">
+        <div class="flex justify-between items-center">
+            <h1 class="text-xl md:text-2xl font-black tracking-wider text-white uppercase">Bandit's Secret: Valuation Destruction Matrix</h1>
+            <span class="text-xs bg-red-950 text-red-400 border border-red-900 px-3 py-1 font-mono uppercase tracking-widest rounded-full animate-pulse">Live Simulator</span>
+        </div>
+        <p class="text-xs text-slate-400 mt-1">Quantitative Risk Architecture • Framework Author: Frank Fabozzi & Lean Six Sigma MBB</p>
+    </div>
+
+    <!-- Main Workspace Matrix -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Interactive Controls (Left Panel) -->
+        <div class="lg:col-span-1 bg-slate-900/60 border border-slate-800 p-6 rounded-xl shadow-2xl backdrop-blur-sm flex flex-col gap-6">
+            <h2 class="text-sm font-bold text-slate-300 uppercase tracking-widest border-b border-slate-800 pb-2">Operational Inputs</h2>
+            
+            <!-- Input 1: Free Cash Flow (FCFF) -->
+            <div>
+                <div class="flex justify-between mb-2">
+                    <label class="text-xs font-semibold text-slate-400 uppercase">Expected FCFF</label>
+                    <span id="fcff-val" class="text-sm font-mono text-cyan-400 font-bold">€80,000,000</span>
+                </div>
+                <input type="range" id="fcff-slider" min="50000000" max="110000000" step="1000000" value="80000000" 
+                       class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-500">
+            </div>
+
+            <!-- Input 2: Asset Beta Variance Shock -->
+            <div>
+                <div class="flex justify-between mb-2">
+                    <label class="text-xs font-semibold text-slate-400 uppercase">Asset Beta (Variance)</label>
+                    <span id="beta-val" class="text-sm font-mono text-amber-400 font-bold">1.10</span>
+                </div>
+                <input type="range" id="beta-slider" min="0.80" max="1.80" step="0.01" value="1.10" 
+                       class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500">
+            </div>
+
+            <!-- Financial Diagnostic Readout -->
+            <div class="mt-4 p-4 bg-slate-950 border border-slate-800/80 rounded-lg text-[11px] text-slate-500 space-y-2">
+                <p>⚡ <span class="text-slate-400 font-semibold">Fabozzi Mechanics:</span> Adjusting the asset covariance variable triggers a real-time CAPM cost of equity transformation, shifting the discount curve.</p>
+            </div>
+        </div>
+
+        <!-- Real-Time Charts & KPI Displays (Right Panel) -->
+        <div class="lg:col-span-2 flex flex-col gap-6">
+            
+            <!-- Strategic Outputs Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- WACC Panel -->
+                <div class="bg-slate-900/40 border border-slate-800/80 p-5 rounded-xl relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Weighted Average Cost of Capital (WACC)</span>
+                    <div id="wacc-display" class="text-3xl font-mono font-black text-amber-400 mt-1">6.64%</div>
+                </div>
+
+                <!-- Enterprise Value Panel -->
+                <div class="bg-slate-900/40 border border-slate-800/80 p-5 rounded-xl relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-cyan-500"></div>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Calculated Enterprise Value</span>
+                    <div id="ev-display" class="text-3xl font-mono font-black text-cyan-400 mt-1">€1,980,676,328</div>
+                </div>
+            </div>
+
+            <!-- Dynamic Valuation Curve Rendering Area -->
+            <div class="bg-slate-900/60 border border-slate-800 p-4 rounded-xl shadow-2xl h-64 flex items-center justify-center relative">
+                <canvas id="valuationChart"></canvas>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Analytics Engine Script Execution -->
+    <script>
+        const fcffSlider = document.getElementById('fcff-slider');
+        const betaSlider = document.getElementById('beta-slider');
+        const fcffVal = document.getElementById('fcff-val');
+        const betaVal = document.getElementById('beta-val');
+        const waccDisplay = document.getElementById('wacc-display');
+        const evDisplay = document.getElementById('ev-display');
+
+        // Macroeconomic Constraints
+        const rf = 0.03; const mrp = 0.05; const wd = 0.40; const we = 0.60; const rd = 0.055; const taxRate = 0.30; const g = 0.025;
+
+        function formatCurrency(num) {
+            return '€' + num.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        // Initialize Chart.js Curve
+        const ctx = document.getElementById('valuationChart').getContext('2d');
+        let valuationChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Stable Ops', 'Minor Deviation', 'Variance Shock', 'Critical Failure'],
+                datasets: [{
+                    label: 'Enterprise Value Horizon curve',
+                    data: [2200000000, 1980676328, 1620726496, 1200000000],
+                    borderColor: '#06b6d4',
+                    borderWidth: 2,
+                    backgroundColor: 'rgba(6, 182, 212, 0.05)',
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#f59e0b'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { color: '#1e293b' }, ticks: { color: '#64748b', font: { size: 10 } } },
+                    y: { grid: { color: '#1e293b' }, ticks: { color: '#64748b', font: { size: 10 } } }
+                }
+            }
+        });
+
+        function calculateMatrix() {
+            const currentFcff = parseFloat(fcffSlider.value);
+            const currentBeta = parseFloat(betaSlider.value);
+
+            fcffVal.innerText = formatCurrency(currentFcff);
+            betaVal.innerText = currentBeta.toFixed(2);
+
+            const re = rf + (currentBeta * mrp);
+            const wacc = (we * re) + (wd * (rd * (1 - taxRate)));
+            let ev = wacc > g ? (currentFcff * (1 + g)) / (wacc - g) : 0;
+
+            waccDisplay.innerText = (wacc * 100).toFixed(2) + '%';
+            evDisplay.innerText = ev > 0 ? formatCurrency(ev) : 'Incalculable';
+
+            // Real-Time Dynamic Simulation Array for Curve Updates
+            const simulatedEVs = [
+                ev * 1.15, 
+                ev,         
+                ev * 0.82,  
+                ev * 0.60   
+            ];
+            
+            valuationChart.data.datasets[0].data = simulatedEVs;
+            valuationChart.update();
+        }
+
+        fcffSlider.addEventListener('input', calculateMatrix);
+        betaSlider.addEventListener('input', calculateMatrix);
+        
+        // Initial Run
+        calculateMatrix();
+    </script>
+</body>
+</html>
